@@ -1,9 +1,11 @@
 ﻿using Browser_based_chat.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace Browser_based_chat.Controllers
 {
+    [Authorize]
     public class RoomChatController : Controller
     {
         private readonly ILogger<RoomChatController> _logger;
