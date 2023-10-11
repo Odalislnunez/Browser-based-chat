@@ -20,6 +20,9 @@ connection.start().then(function () {
     connection.invoke("JoinGroup", roomID).catch(function (err) {
         return console.error(err.toString());
     });
+    connection.invoke("GetRoomChats", roomID).catch(function (err) {
+        return console.error(err.toString());
+    });
 }).catch(function (err) {
     return console.error(err.toString());
 });
