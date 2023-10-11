@@ -4,11 +4,11 @@ using System.Diagnostics;
 
 namespace Browser_based_chat.Controllers
 {
-    public class HomeController : Controller
+    public class RoomChatController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<RoomChatController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public RoomChatController(ILogger<RoomChatController> logger)
         {
             _logger = logger;
         }
