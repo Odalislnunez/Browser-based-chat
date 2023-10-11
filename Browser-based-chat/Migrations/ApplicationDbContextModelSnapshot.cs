@@ -15,7 +15,7 @@ namespace Browser_based_chat.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "6.0.21");
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.11");
 
             modelBuilder.Entity("Browser_based_chat.Areas.Identity.Data.User", b =>
                 {
@@ -81,6 +81,8 @@ namespace Browser_based_chat.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Id");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -89,6 +91,77 @@ namespace Browser_based_chat.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Browser_based_chat.Models.Room", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ID");
+
+                    b.ToTable("Rooms");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            Description = "Food",
+                            Status = true
+                        },
+                        new
+                        {
+                            ID = 2,
+                            Description = "Video Games",
+                            Status = true
+                        },
+                        new
+                        {
+                            ID = 3,
+                            Description = "Movies",
+                            Status = true
+                        });
+                });
+
+            modelBuilder.Entity("Browser_based_chat.Models.RoomChat", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("date")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("roomID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("userID")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("userID");
+
+                    b.HasIndex("roomID", "userID");
+
+                    b.ToTable("RoomChats");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -223,6 +296,25 @@ namespace Browser_based_chat.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Browser_based_chat.Models.RoomChat", b =>
+                {
+                    b.HasOne("Browser_based_chat.Models.Room", "room")
+                        .WithMany("roomChats")
+                        .HasForeignKey("roomID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Browser_based_chat.Areas.Identity.Data.User", "user")
+                        .WithMany("roomChats")
+                        .HasForeignKey("userID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("room");
+
+                    b.Navigation("user");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -272,6 +364,16 @@ namespace Browser_based_chat.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Browser_based_chat.Areas.Identity.Data.User", b =>
+                {
+                    b.Navigation("roomChats");
+                });
+
+            modelBuilder.Entity("Browser_based_chat.Models.Room", b =>
+                {
+                    b.Navigation("roomChats");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Browser_based_chat.Models;
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace Browser_based_chat.Areas.Identity.Data;
 
-// Add profile data for application users by adding properties to the User class
 public class User : IdentityUser
-{
+{ 
     public string FirstName { get; set; }     
     public string LastName { get; set; }     
+
+    public ICollection<RoomChat> roomChats { get; set; }
 }
 

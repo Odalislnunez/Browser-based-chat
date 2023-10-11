@@ -3,10 +3,14 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Browser_based_chat.Migrations
 {
-    public partial class CreateDatabaseAddingUser : Migration
+    /// <inheritdoc />
+    public partial class CreateDatabase : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -48,6 +52,20 @@ namespace Browser_based_chat.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Rooms",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Description = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    Status = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rooms", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -156,6 +174,44 @@ namespace Browser_based_chat.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "RoomChats",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    userID = table.Column<string>(type: "TEXT", nullable: false),
+                    roomID = table.Column<int>(type: "INTEGER", nullable: false),
+                    message = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false),
+                    date = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoomChats", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_RoomChats_AspNetUsers_userID",
+                        column: x => x.userID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RoomChats_Rooms_roomID",
+                        column: x => x.roomID,
+                        principalTable: "Rooms",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Rooms",
+                columns: new[] { "ID", "Description", "Status" },
+                values: new object[,]
+                {
+                    { 1, "Food", true },
+                    { 2, "Video Games", true },
+                    { 3, "Movies", true }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -188,12 +244,33 @@ namespace Browser_based_chat.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_Id",
+                table: "AspNetUsers",
+                column: "Id");
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoomChats_roomID_userID",
+                table: "RoomChats",
+                columns: new[] { "roomID", "userID" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoomChats_userID",
+                table: "RoomChats",
+                column: "userID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rooms_ID",
+                table: "Rooms",
+                column: "ID");
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
@@ -212,10 +289,16 @@ namespace Browser_based_chat.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "RoomChats");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Rooms");
         }
     }
 }

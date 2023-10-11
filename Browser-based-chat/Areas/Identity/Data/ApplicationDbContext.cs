@@ -19,18 +19,20 @@ public class ApplicationDbContext : IdentityDbContext<User>
 
         builder.ApplyConfiguration(new UserConfiguration());
         builder.ApplyConfiguration(new RoomConfiguration());
+        builder.ApplyConfiguration(new RoomChatConfiguration());
 
         SeedRooms(builder);
     }
 
-    public DbSet<Room> rooms { get; set; }
+    public DbSet<Room> Rooms { get; set; }
+    public DbSet<RoomChat> RoomChats { get; set; }
 
     public void SeedRooms(ModelBuilder builder)
     {
         var rooms = new List<Room> {
-            new Room ("Food"),
-            new Room ("Video Games"),
-            new Room ("Movies")
+            new Room (1, "Food"),
+            new Room (2, "Video Games"),
+            new Room (3, "Movies")
         };
 
         builder.Entity<Room>().HasData(rooms);

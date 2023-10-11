@@ -8,8 +8,9 @@ namespace Browser_based_chat.Models
         {
             
         }
-        public Room(string description)
+        public Room(int iD, string description)
         {
+            ID = iD;
             Description = description;
         }
 
@@ -17,5 +18,7 @@ namespace Browser_based_chat.Models
         public int ID { get; set; }
         public string Description { get; set; }
         public bool Status { get; set; } = true;
+
+        public ICollection<RoomChat> roomChats { get; set; }   
     }
 }
