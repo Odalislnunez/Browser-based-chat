@@ -45,7 +45,7 @@ namespace Browser_based_chat.Hubs
 
         public async Task GetRoomChats(string roomId)
         {
-            var roomChats = _dbcontext.RoomChats.Include(x => x.user).Where(x => x.roomID == Convert.ToInt32(roomId)).OrderByDescending(x => x.date).Take(50).ToList();
+            var roomChats = _dbcontext.RoomChats.Include(x => x.user).Where(x => x.roomID == Convert.ToInt32(roomId)).OrderBy(x => x.date).Take(50).ToList();
 
             foreach(var roomChat in roomChats)
             {
