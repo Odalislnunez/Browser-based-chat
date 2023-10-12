@@ -5,11 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using NuGet.Protocol.Plugins;
-using System.Net.Http.Json;
-using System.Xml.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Browser_based_chat.Hubs
 {
@@ -30,6 +25,8 @@ namespace Browser_based_chat.Hubs
         {
             var user = await _userManager.FindByEmailAsync(email);
 
+            var messagesCount = _dbcontext.RoomChats.Where(x => x.ID == Convert.ToInt32(roomId)).Count();
+
             if (msg.ToLower().Contains("/stock"))
             {
                 await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", $"{user.FirstName} {user.LastName}", msg, DateTime.Now.ToString("G"));
@@ -42,16 +39,16 @@ namespace Browser_based_chat.Hubs
                     {
                         var quote = objectResult.Value.ToString();
 
-                        await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", "Stock Quote Bot", quote, DateTime.Now.ToString("G"));
+                        await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", "Stock Quote Bot", quote, DateTime.Now.ToString("G"), messagesCount);
                     }
                     else
                     {
-                        await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", "Stock Quote Bot", "No data received", DateTime.Now.ToString("G"));
+                        await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", "Stock Quote Bot", "No data received", DateTime.Now.ToString("G"), messagesCount);
                     }
                 }
                 catch (Exception ex)
                 {
-                    await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", "Stock Quote Bot", ex.Message, DateTime.Now.ToString("G"));
+                    await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", "Stock Quote Bot", ex.Message, DateTime.Now.ToString("G"), messagesCount);
                 }
             }
             else
@@ -68,7 +65,9 @@ namespace Browser_based_chat.Hubs
 
                 await _dbcontext.SaveChangesAsync();
 
-                await GetRoomChats(roomId);
+                messagesCount++;
+
+                await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", $"{user.FirstName} {user.LastName}", msg, DateTime.Now.ToString("G"), messagesCount);
             }
         }
 
@@ -93,6 +92,12 @@ namespace Browser_based_chat.Hubs
                 .ToListAsync();
 
             await Clients.Group(roomId).SendAsync("ReceiveMessage", roomChats);
+        }
+
+        public override Task OnConnectedAsync()
+        {
+            Clients.All.SendAsync("ReceiveMessageCommand", "Bot", "New user enter to the online chat.", DateTime.Now.ToString("G"), 0);
+            return base.OnConnectedAsync();
         }
     }
 }
