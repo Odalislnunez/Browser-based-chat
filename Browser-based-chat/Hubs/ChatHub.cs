@@ -23,36 +23,12 @@ namespace Browser_based_chat.Hubs
 
         public async Task SendMessage(string msg, string roomId, string email)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-
-            var messagesCount = _dbcontext.RoomChats.Where(x => x.roomID == Convert.ToInt32(roomId)).Count();
-
-            if (msg.ToLower().Contains("/stock"))
+            if (!string.IsNullOrEmpty(msg.Trim()))
             {
-                await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", $"{user.FirstName} {user.LastName}", msg, DateTime.Now.ToString("G"));
+                var user = await _userManager.FindByEmailAsync(email);
 
-                var stockCode = msg.Replace("/stock=", "");
-                try
-                {
-                    var quoteResult = await _stockQBotService.GetStockQuoteAsync(stockCode);
-                    if (quoteResult is JsonResult objectResult && objectResult.Value != null)
-                    {
-                        var quote = objectResult.Value.ToString();
-
-                        await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", "Stock Quote Bot", quote, DateTime.Now.ToString("G"), messagesCount);
-                    }
-                    else
-                    {
-                        await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", "Stock Quote Bot", "No data received", DateTime.Now.ToString("G"), messagesCount);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", "Stock Quote Bot", ex.Message, DateTime.Now.ToString("G"), messagesCount);
-                }
-            }
-            else
-            {
+                var messagesCount = _dbcontext.RoomChats.Where(x => x.roomID == Convert.ToInt32(roomId)).Count();
+                
                 var roomChat = new RoomChat
                 {
                     userID = user.Id,

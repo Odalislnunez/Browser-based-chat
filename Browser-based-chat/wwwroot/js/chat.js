@@ -22,7 +22,6 @@ connection.on("ReceiveMessageCommand", function (user, message, time, count) {
     var ul = document.getElementById("messagesList");
     ul.insertBefore(li, ul.firstChild);
 
-    console.log("count: " + count);
     if (count > 50) {
         var lastLi = ul.querySelector('li:last-child');
         if (lastLi) {
@@ -51,13 +50,24 @@ document.getElementById("sendButton").addEventListener("click", function (event)
     var msg = document.getElementById("messageInput").value;
     var email = document.getElementById("emailInput").value;
 
-    if (msg != null && msg != '') {
+    if (msg.toLowerCase().includes("/stock=")) {
+        $.ajax({
+            type: "POST",
+            url: '/RoomChat/GetStockQuote',
+            dataType: "JSON",
+            data: JSON.stringify({msg: msg, roomId: roomID, email: email}),
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {},
+            error: function (error) {}
+        });
+    }
+    else {
         connection.invoke("SendMessage", msg, roomID, email).catch(function (err) {
             return console.error(err.toString());
         });
-
-        msg = '';
     }
+
+    document.getElementById("messageInput").value = '';
 
     event.preventDefault();
 });
