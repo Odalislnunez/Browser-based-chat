@@ -15,6 +15,14 @@ connection.on("ReceiveMessage", function (messages) {
     });
 });
 
+connection.on("ReceiveMessageCommand", function (user, message, time) {
+    var li = document.createElement("li");
+    li.textContent = `${user}: ${message} (${time})`;
+
+    var ul = document.getElementById("messagesList");
+    ul.insertBefore(li, ul.firstChild);
+});
+
 connection.start().then(function () {
     document.getElementById("sendButton").disabled = false;
 

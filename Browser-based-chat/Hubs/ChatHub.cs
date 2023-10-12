@@ -1,38 +1,75 @@
 ﻿using Browser_based_chat.Areas.Identity.Data;
 using Browser_based_chat.Models;
+using Browser_based_chat.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using NuGet.Protocol.Plugins;
+using System.Net.Http.Json;
+using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Browser_based_chat.Hubs
 {
     public class ChatHub : Hub
     {
         public ApplicationDbContext _dbcontext;
+        public IStockQBotService _stockQBotService;
         public UserManager<User> _userManager;
 
-        public ChatHub(ApplicationDbContext applicationDbContext,UserManager<User> userManager)
+        public ChatHub(ApplicationDbContext applicationDbContext, IStockQBotService stockQBotService, UserManager<User> userManager)
         {
             _dbcontext = applicationDbContext;
+            _stockQBotService = stockQBotService;
             _userManager = userManager;
         }
+
         public async Task SendMessage(string msg, string roomId, string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
 
-            var roomChat = new RoomChat
+            if (msg.ToLower().Contains("/stock"))
             {
-                userID = user.Id,
-                roomID = Convert.ToInt32(roomId),
-                message = msg,
-                date = DateTime.Now
-            };
+                await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", $"{user.FirstName} {user.LastName}", msg, DateTime.Now.ToString("G"));
 
-            _dbcontext.RoomChats.Add(roomChat);
+                var stockCode = msg.Replace("/stock=", "");
+                try
+                {
+                    var quoteResult = _stockQBotService.GetStockQuote(stockCode);
+                    if (quoteResult is JsonResult objectResult && objectResult.Value != null)
+                    {
+                        var quote = objectResult.Value.ToString();
 
-            await _dbcontext.SaveChangesAsync();
+                        await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", "Stock Quote Bot", quote, DateTime.Now.ToString("G"));
+                    }
+                    else
+                    {
+                        await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", "Stock Quote Bot", "No data received", DateTime.Now.ToString("G"));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await Clients.Group(roomId).SendAsync("ReceiveMessageCommand", "Stock Quote Bot", ex.Message, DateTime.Now.ToString("G"));
+                }
+            }
+            else
+            {
+                var roomChat = new RoomChat
+                {
+                    userID = user.Id,
+                    roomID = Convert.ToInt32(roomId),
+                    message = msg,
+                    date = DateTime.Now
+                };
 
-            await GetRoomChats(roomId);
+                _dbcontext.RoomChats.Add(roomChat);
+
+                await _dbcontext.SaveChangesAsync();
+
+                await GetRoomChats(roomId);
+            }
         }
 
         public Task JoinGroup(string roomId)
