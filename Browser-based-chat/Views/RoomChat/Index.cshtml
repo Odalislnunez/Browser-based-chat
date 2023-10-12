@@ -1,0 +1,35 @@
+﻿@model IEnumerable<Room>
+@{
+    ViewData["Title"] = "Rooms";
+}
+
+<div class="container">
+    <div class="row p-1">
+        <div class="col-2">Type a room name: </div>
+        <div class="col-3"><input type="text" class="w-100" id="roomInput" /></div>
+        <div class="col-2 text-end">
+            <input type="button" id="createButton" value="Create" />
+        </div>
+    </div>
+    <br />
+    <br />
+    <ul>
+        @foreach (var item in Model)
+        {
+            <li>
+                <div class="row p-1">
+                    <div class="col-2">
+                        <a asp-action="Details" asp-controller="RoomChat" asp-route-roomId="@item.ID">
+                            <span>@item.Description</span>
+                        </a>
+                    </div>
+                    <div class="col-5 text-end">
+                        <input type="button" id="deleteButton" value="DELETE ROOM" onclick="DeleteButton('@item.ID')" />
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+</div>
+
+<script src="~/js/room.js"></script>
