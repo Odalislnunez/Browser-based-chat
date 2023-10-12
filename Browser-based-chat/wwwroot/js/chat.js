@@ -2,7 +2,6 @@
 
 var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
 
-//Disable the send button until connection is established.
 document.getElementById("sendButton").disabled = true;
 
 connection.on("ReceiveMessage", function (messages) {
@@ -18,7 +17,9 @@ connection.on("ReceiveMessage", function (messages) {
 
 connection.start().then(function () {
     document.getElementById("sendButton").disabled = false;
+
     var roomID = document.getElementById("roomIdInput").value;
+
     connection.invoke("JoinGroup", roomID).catch(function (err) {
         return console.error(err.toString());
     });
