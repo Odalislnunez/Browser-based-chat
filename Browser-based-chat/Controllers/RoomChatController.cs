@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using System.Diagnostics;
 
 namespace Browser_based_chat.Controllers
@@ -50,6 +51,57 @@ namespace Browser_based_chat.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> Delete([FromBody] RoomCreateModel model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.email);
+            var room = _dbContext.Rooms.Where(x => x.ID == Convert.ToInt32(model.roomId)).FirstOrDefault();
+
+            if(user != null && user.Id == room.UserId)
+            {
+                room.Status = !room.Status;
+
+                await _dbContext.SaveChangesAsync();
+            }
+            else
+            {
+                return BadRequest("You cannot delete a room which you haven't created.");
+            }
+
+            return Json("");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] RoomCreateModel model)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(model.description.Trim()))
+                {
+                    var user = await _userManager.FindByEmailAsync(model.email);
+
+                    var lastRoom = _dbContext.Rooms.OrderByDescending(x => x.ID).FirstOrDefault();
+
+                    Room room;
+
+                    if (lastRoom != null)
+                        room = new Room(lastRoom.ID + 1, model.description, user.Id);
+                    else
+                        room = new Room(1, model.description, user.Id);
+
+                    _dbContext.Rooms.Add(room);
+
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Json("");
+        }
+
+        [HttpPost]
         public async Task<IActionResult> GetStockQuote([FromBody] StockModel model)
         {
             var user = await _userManager.FindByEmailAsync(model.email);
@@ -89,12 +141,5 @@ namespace Browser_based_chat.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-    }
-
-    public class StockModel
-    {
-        public string msg { get; set; }
-        public string roomId { get; set; }
-        public string email { get; set; }
     }
 }

@@ -9,6 +9,7 @@ namespace Browser_based_chat.Areas.Identity.Data.Configurations
         public void Configure(EntityTypeBuilder<Room> builder)
         {
             builder.HasIndex(x => x.ID);
+
             builder.Property(x => x.Description).HasMaxLength(255);
         }
     }
