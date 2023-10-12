@@ -37,7 +37,7 @@ namespace Browser_based_chat.Hubs
                 var stockCode = msg.Replace("/stock=", "");
                 try
                 {
-                    var quoteResult = _stockQBotService.GetStockQuote(stockCode);
+                    var quoteResult = await _stockQBotService.GetStockQuoteAsync(stockCode);
                     if (quoteResult is JsonResult objectResult && objectResult.Value != null)
                     {
                         var quote = objectResult.Value.ToString();
