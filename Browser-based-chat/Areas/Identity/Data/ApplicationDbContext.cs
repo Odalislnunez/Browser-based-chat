@@ -30,9 +30,9 @@ public class ApplicationDbContext : IdentityDbContext<User>
     public void SeedRooms(ModelBuilder builder)
     {
         var rooms = new List<Room> {
-            new Room (1, "Food"),
-            new Room (2, "Video Games"),
-            new Room (3, "Movies")
+            new Room (1, "Food", null),
+            new Room (2, "Video Games", null),
+            new Room (3, "Movies", null)
         };
 
         builder.Entity<Room>().HasData(rooms);
