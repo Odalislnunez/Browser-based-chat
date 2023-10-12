@@ -3,7 +3,6 @@ using Browser_based_chat.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace Browser_based_chat.Hubs
 {
@@ -21,21 +20,19 @@ namespace Browser_based_chat.Hubs
         {
             var user = await _userManager.FindByEmailAsync(email);
 
-            var time = DateTime.UtcNow;
-
             var roomChat = new RoomChat
             {
                 userID = user.Id,
                 roomID = Convert.ToInt32(roomId),
                 message = msg,
-                date = time
+                date = DateTime.Now
             };
 
             _dbcontext.RoomChats.Add(roomChat);
 
             await _dbcontext.SaveChangesAsync();
 
-            await Clients.Group(roomId).SendAsync("ReceiveMessage", user.FirstName + " " + user.LastName, msg, time);
+            await GetRoomChats(roomId);
         }
 
         public Task JoinGroup(string roomId)
@@ -45,12 +42,20 @@ namespace Browser_based_chat.Hubs
 
         public async Task GetRoomChats(string roomId)
         {
-            var roomChats = _dbcontext.RoomChats.Include(x => x.user).Where(x => x.roomID == Convert.ToInt32(roomId)).OrderBy(x => x.date).Take(50).ToList();
+            var roomChats = await _dbcontext.RoomChats
+                .Include(x => x.user)
+                .Where(x => x.roomID == Convert.ToInt32(roomId))
+                .OrderByDescending(x => x.date)
+                .Take(50)
+                .Select(x => new
+                {
+                    user = x.user.FirstName + " " + x.user.LastName,
+                    msg = x.message,
+                    time = x.date.ToString("G")
+                })
+                .ToListAsync();
 
-            foreach(var roomChat in roomChats)
-            {
-                await Clients.Group(roomId).SendAsync("ReceiveMessage", roomChat.user.FirstName + " " + roomChat.user.LastName, roomChat.message, roomChat.date);
-            }
+            await Clients.Group(roomId).SendAsync("ReceiveMessage", roomChats);
         }
     }
 }
