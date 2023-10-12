@@ -22,6 +22,7 @@ connection.on("ReceiveMessageCommand", function (user, message, time, count) {
     var ul = document.getElementById("messagesList");
     ul.insertBefore(li, ul.firstChild);
 
+    console.log("count: " + count);
     if (count > 50) {
         var lastLi = ul.querySelector('li:last-child');
         if (lastLi) {
@@ -50,7 +51,7 @@ document.getElementById("sendButton").addEventListener("click", function (event)
     var msg = document.getElementById("messageInput").value;
     var email = document.getElementById("emailInput").value;
 
-    if (msg != null) {
+    if (msg != null && msg != '') {
         connection.invoke("SendMessage", msg, roomID, email).catch(function (err) {
             return console.error(err.toString());
         });

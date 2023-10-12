@@ -25,7 +25,7 @@ namespace Browser_based_chat.Hubs
         {
             var user = await _userManager.FindByEmailAsync(email);
 
-            var messagesCount = _dbcontext.RoomChats.Where(x => x.ID == Convert.ToInt32(roomId)).Count();
+            var messagesCount = _dbcontext.RoomChats.Where(x => x.roomID == Convert.ToInt32(roomId)).Count();
 
             if (msg.ToLower().Contains("/stock"))
             {
