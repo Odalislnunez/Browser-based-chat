@@ -2,10 +2,7 @@
 using Browser_based_chat.Services.Interfaces;
 using CsvHelper;
 using CsvHelper.Configuration;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Protocol.Plugins;
-using System.Data;
 using System.Globalization;
 
 namespace Browser_based_chat.Services
@@ -17,13 +14,13 @@ namespace Browser_based_chat.Services
         {
             _client = httpClient;
         }
-        public IActionResult GetStockQuote(string stockCode)
+        public async Task<IActionResult> GetStockQuoteAsync(string stockCode)
         {
             var stockQuote = new StockQuote();
 
             try
             {
-                using (var response = _client.GetAsync($"https://stooq.com/q/l/?s={stockCode}&f=sd2t2ohlcv&h&e=csv").Result)
+                using (var response = await _client.GetAsync($"https://stooq.com/q/l/?s={stockCode}&f=sd2t2ohlcv&h&e=csv"))
                 {
                     if (response.IsSuccessStatusCode)
                     {

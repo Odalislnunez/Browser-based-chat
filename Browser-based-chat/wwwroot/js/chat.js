@@ -15,12 +15,19 @@ connection.on("ReceiveMessage", function (messages) {
     });
 });
 
-connection.on("ReceiveMessageCommand", function (user, message, time) {
+connection.on("ReceiveMessageCommand", function (user, message, time, count) {
     var li = document.createElement("li");
     li.textContent = `${user}: ${message} (${time})`;
 
     var ul = document.getElementById("messagesList");
     ul.insertBefore(li, ul.firstChild);
+
+    if (count > 50) {
+        var lastLi = ul.querySelector('li:last-child');
+        if (lastLi) {
+            ul.removeChild(lastLi);
+        }
+    }
 });
 
 connection.start().then(function () {
@@ -43,8 +50,19 @@ document.getElementById("sendButton").addEventListener("click", function (event)
     var msg = document.getElementById("messageInput").value;
     var email = document.getElementById("emailInput").value;
 
-    connection.invoke("SendMessage", msg, roomID, email).catch(function (err) {
-        return console.error(err.toString());
-    });
+    if (msg != null) {
+        connection.invoke("SendMessage", msg, roomID, email).catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        msg = '';
+    }
+
     event.preventDefault();
 });
+
+function handleKeyPress(event) {
+    if (event.key === "Enter") {
+        document.getElementById('sendButton').click();
+    }
+}
