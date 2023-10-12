@@ -1,5 +1,7 @@
 using Browser_based_chat.Areas.Identity.Data;
 using Browser_based_chat.Hubs;
+using Browser_based_chat.Services;
+using Browser_based_chat.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,10 @@ builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfi
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 // Add services to the container.
+
+builder.Services.AddTransient<HttpClient>();
+builder.Services.AddTransient<IStockQBotService, StockQBotService>();
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddSignalR();

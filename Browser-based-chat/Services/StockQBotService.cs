@@ -2,6 +2,7 @@
 using Browser_based_chat.Services.Interfaces;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol.Plugins;
 using System.Data;
@@ -37,11 +38,11 @@ namespace Browser_based_chat.Services
                         }
                     }
                 }
-                throw new Exception("Failed to retrieve CSV data from the API.");
+                throw new Exception("Failed to retrieve CSV data from the API. Check stock quote code.");
             }
             catch (Exception)
             {
-                throw new Exception("Failed to connect to the API or retrieving data.");
+                throw new Exception("Failed to connect to the API or retrieving data. Check stock quote code.");
             }
         }
     }
