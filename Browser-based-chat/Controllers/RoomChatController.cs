@@ -34,11 +34,13 @@ namespace Browser_based_chat.Controllers
 
         public IActionResult Details(int roomId)
         {
-            var room = _dbContext.RoomChats.Where(x => x.roomID == roomId).ToList();
+            var roomChats = _dbContext.RoomChats.Where(x => x.roomID == roomId).ToList();
+            var room = _dbContext.Rooms.Where(x => x.ID == roomId).FirstOrDefault();
 
             ViewBag.RoomID = roomId;
+            ViewBag.RoomName = room.Description;
 
-            return View(room);
+            return View(roomChats);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

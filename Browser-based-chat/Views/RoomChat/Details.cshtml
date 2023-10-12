@@ -4,7 +4,11 @@
 }
 
 <div class="container">
-    <div class="col-5"><input type="text" class="w-100" id="roomIdInput" value="@ViewBag.RoomID" hidden disabled/></div>
+    <div class="text-center">
+        <h1 class="display-4">@ViewBag.RoomName Room</h1>
+    </div>
+    <br/>
+    <div class="col-5"><input type="text" class="w-100" id="roomIdInput" value="@ViewBag.RoomID" hidden disabled /></div>
     <div class="row p-1">
         <div class="col-1">Type a message: </div>
         <div class="col-5"><input type="text" class="w-100" id="messageInput" /></div>
